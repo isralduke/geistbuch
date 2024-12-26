@@ -1,0 +1,7 @@
+{%- macro button(params) -%}
+	<button id="{{ params.id }}" type="{{ params.type }}" class="{{ params.classes }}">
+		{%- if params.iconLeft -%}<span class="icon {{ params.iconLeft }}"></span>{%- endif -%}
+		{{ params.text }}
+		{%- if params.iconRight -%}<span class="icon {{ params.iconRight }}"></span>{%- endif -%}
+	</button>
+{%- endmacro -%}

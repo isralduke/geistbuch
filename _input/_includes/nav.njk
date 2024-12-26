@@ -1,0 +1,23 @@
+{% set navPages = collections.all | eleventyNavigation %}
+<ul>
+{%- for entry in navPages %}
+	<li{% if entry.url == page.url %} class="my-active-class"{% endif %}>
+		<a href="{{ entry.url }}">{{ entry.title }}</a>
+		{% if entry.children %}
+			<ul>
+			{% for child in entry.children %}
+				<li><a href="{{ child.url | url }}">{{ child.title }}</a>
+					{% if child.children %}
+						<ul>
+						{% for grandchild in child.children %}
+							<li><a href="{{ grandchild.url | url }}">{{ grandchild.title }}</a></li>
+						{% endfor %}
+						</ul>
+					{% endif %}
+				</li>
+			{% endfor %}
+			</ul>
+		{% endif %}
+	</li>
+{%- endfor %}
+</ul>

@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="en">
+<head>
+{% include 'head.njk' %}
+</head>
+<body>
+<a id="skipLink" class="skip-link" href="#main">Skip to Main Content</a>
+{% include 'nav.njk' %}
+{{ content | safe }}
+</body>
+</html>
