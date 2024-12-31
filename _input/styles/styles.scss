@@ -1,9 +1,0 @@
-$transition-base: all 150ms ease-out;
-@import 'reset';
-
-html, body {
-	color: var(--site-text-color);
-	background-color: var(--site-bg-color);
-	font-family: sans-serif;
-	font-size: 1rem;
-}
