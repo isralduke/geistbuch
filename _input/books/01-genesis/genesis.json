@@ -1,4 +1,12 @@
 {
-  "tags"        : "genesis",
-  "order"       : 1
+  "tags": "genesis",
+  "order": 1,
+  "bookInfo": {
+    "title": "Genesis",
+    "testament": "old",
+    "chapters": 50,
+    "category": "law",
+    "author": "Moses (traditional)",
+    "summary": "The beginning of everything"
+  }
 }
