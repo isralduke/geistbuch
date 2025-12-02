@@ -1,0 +1,30 @@
+{# Get all chapters in the current book using the parent tag #}
+{% set bookChapters = collections[parent | lower] | sortByChapter %}
+
+{# Only show navigation if there's more than one chapter #}
+{% if bookChapters.length > 1 %}
+  {# Find current chapter index #}
+  {% set currentIndex = bookChapters | findIndex(page.url) %}
+  
+  <nav class="chapter-navigation" aria-label="Chapter Navigation">
+    <div class="nav-buttons">
+      {# Previous chapter link #}
+      {% if currentIndex > 0 %}
+        {% set prevChapter = bookChapters[currentIndex - 1] %}
+        <a href="{{ prevChapter.url }}" class="nav-button nav-prev" rel="prev">
+          <span class="nav-label">← Previous</span>
+          <span class="nav-title">Chapter {{ prevChapter.data.title }}</span>
+        </a>
+      {% endif %}
+      
+      {# Next chapter link #}
+      {% if currentIndex < bookChapters.length - 1 %}
+        {% set nextChapter = bookChapters[currentIndex + 1] %}
+        <a href="{{ nextChapter.url }}" class="nav-button nav-next" rel="next">
+          <span class="nav-label">Next →</span>
+          <span class="nav-title">Chapter {{ nextChapter.data.title }}</span>
+        </a>
+      {% endif %}
+    </div>
+  </nav>
+{% endif %}

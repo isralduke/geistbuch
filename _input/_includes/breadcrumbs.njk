@@ -1,0 +1,19 @@
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <ul>
+    <li><a href="/">Home</a></li>
+    
+    {% if parent %}
+      {# If there's a parent (book name), show it as a link #}
+      <li><a href="/books/{{ parent | slugify }}/">{{ parent }}</a></li>
+    {% endif %}
+    
+    {# Current page - not a link #}
+    <li aria-current="page">
+      {% if parent and title %}
+        Chapter {{ title }}
+      {% else %}
+        {{ title }}
+      {% endif %}
+    </li>
+  </ul>
+</nav>
