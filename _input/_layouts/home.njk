@@ -1,0 +1,49 @@
+---
+layout: _base.njk
+---
+
+<article class="home">
+  <header class="home-header">
+    <h1>{{ title }}</h1>
+  </header>
+
+  <div class="home-content">
+    {{ content | safe }}
+  </div>
+
+  <nav class="books-list">
+    <h2>Books of the Bible</h2>
+    
+    <section class="testament old-testament">
+      <h3>Old Testament</h3>
+      <ul>
+        {% for book in collections.all %}
+          {% if book.url and book.url.includes('/books/') and book.url.endsWith('/') and book.data.title %}
+            {% set bookOrder = book.data.order or 999 %}
+            {% if bookOrder <= 39 %}
+              <li>
+                <a href="{{ book.url }}">{{ book.data.title }}</a>
+              </li>
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="testament new-testament">
+      <h3>New Testament</h3>
+      <ul>
+        {% for book in collections.all %}
+          {% if book.url and book.url.includes('/books/') and book.url.endsWith('/') and book.data.title %}
+            {% set bookOrder = book.data.order or 999 %}
+            {% if bookOrder >= 40 %}
+              <li>
+                <a href="{{ book.url }}">{{ book.data.title }}</a>
+              </li>
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </section>
+  </nav>
+</article>
