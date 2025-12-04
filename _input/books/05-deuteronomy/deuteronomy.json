@@ -1,4 +1,5 @@
 {
-  "tags"        : "deuteronomy",
-  "order"       : 5
+  "tags": "deuteronomy",
+  "order": 5,
+  "layout": "chapter.njk"
 }

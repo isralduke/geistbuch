@@ -1,4 +1,5 @@
 {
-  "tags"        : "chronicles-1",
-  "order"       : 13
+  "tags": "chronicles-1",
+  "order": 13,
+  "layout": "chapter.njk"
 }

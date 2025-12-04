@@ -1,4 +1,5 @@
 {
-  "tags"        : "nahum",
-  "order"       : 34
+  "tags": "nahum",
+  "order": 34,
+  "layout": "chapter.njk"
 }

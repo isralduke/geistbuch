@@ -1,4 +1,5 @@
 {
-  "tags"        : "proverbs",
-  "order"       : 20
+  "tags": "proverbs",
+  "order": 20,
+  "layout": "chapter.njk"
 }

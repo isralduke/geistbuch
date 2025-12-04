@@ -1,4 +1,5 @@
 {
-  "tags"        : "samuel-2",
-  "order"       : 10
+  "tags": "samuel-2",
+  "order": 10,
+  "layout": "chapter.njk"
 }

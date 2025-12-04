@@ -1,4 +1,5 @@
 {
-  "tags"        : "philippians",
-  "order"       : 50
+  "tags": "philippians",
+  "order": 50,
+  "layout": "chapter.njk"
 }

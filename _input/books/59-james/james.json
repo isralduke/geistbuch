@@ -1,4 +1,5 @@
 {
-  "tags"        : "james",
-  "order"       : 59
+  "tags": "james",
+  "order": 59,
+  "layout": "chapter.njk"
 }

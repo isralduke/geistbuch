@@ -1,4 +1,5 @@
 {
-  "tags"        : "obadiah",
-  "order"       : 31
+  "tags": "obadiah",
+  "order": 31,
+  "layout": "chapter.njk"
 }

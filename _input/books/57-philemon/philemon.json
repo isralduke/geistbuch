@@ -1,4 +1,5 @@
 {
-  "tags"        : "philemon",
-  "order"       : 57
+  "tags": "philemon",
+  "order": 57,
+  "layout": "chapter.njk"
 }

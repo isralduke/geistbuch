@@ -1,4 +1,5 @@
 {
-  "tags"        : "galatians",
-  "order"       : 48
+  "tags": "galatians",
+  "order": 48,
+  "layout": "chapter.njk"
 }

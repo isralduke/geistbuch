@@ -1,4 +1,5 @@
 {
-  "tags"        : "jude",
-  "order"       : 65
+  "tags": "jude",
+  "order": 65,
+  "layout": "chapter.njk"
 }

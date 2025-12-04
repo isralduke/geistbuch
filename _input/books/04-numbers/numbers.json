@@ -1,4 +1,5 @@
 {
-  "tags"        : "numbers",
-  "order"       : 4
+  "tags": "numbers",
+  "order": 4,
+  "layout": "chapter.njk"
 }

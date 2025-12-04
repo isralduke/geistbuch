@@ -1,4 +1,5 @@
 {
-  "tags"        : "thessalonians-2",
-  "order"       : 53
+  "tags": "thessalonians-2",
+  "order": 53,
+  "layout": "chapter.njk"
 }

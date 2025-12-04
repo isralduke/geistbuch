@@ -8,5 +8,6 @@
     "category": "law",
     "author": "Moses (traditional)",
     "summary": "The beginning of everything"
-  }
+  },
+  "layout": "chapter.njk"
 }

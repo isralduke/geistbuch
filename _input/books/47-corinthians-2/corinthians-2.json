@@ -1,4 +1,5 @@
 {
-  "tags"        : "corinthians-2",
-  "order"       : 47
+  "tags": "corinthians-2",
+  "order": 47,
+  "layout": "chapter.njk"
 }

@@ -1,4 +1,5 @@
 {
-  "tags"        : "zephaniah",
-  "order"       : 36
+  "tags": "zephaniah",
+  "order": 36,
+  "layout": "chapter.njk"
 }

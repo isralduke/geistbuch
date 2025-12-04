@@ -1,4 +1,5 @@
 {
-  "tags"        : "job",
-  "order"       : 18
+  "tags": "job",
+  "order": 18,
+  "layout": "chapter.njk"
 }

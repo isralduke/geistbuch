@@ -1,4 +1,5 @@
 {
-  "tags"        : "kings-2",
-  "order"       : 12
+  "tags": "kings-2",
+  "order": 12,
+  "layout": "chapter.njk"
 }

@@ -1,4 +1,5 @@
 {
-  "tags"        : "psalms",
-  "order"       : 19
+  "tags": "psalms",
+  "order": 19,
+  "layout": "chapter.njk"
 }
