@@ -32,6 +32,8 @@ module.exports = function(eleventyConfig) {
     return value.toString().split(separator || ',');
   });
 
+  eleventyConfig.addPassthroughCopy("./_input/css/");
+
   return {
 	dir: {
 		input: "_input",

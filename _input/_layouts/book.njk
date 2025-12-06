@@ -31,14 +31,14 @@ layout: _base.njk
     
     {% if chapters and chapters.length > 0 %}
       <nav class="chapter-list" aria-label="Chapters">
-        <h2>Chapters</h2>
+        <h2>{{ chapters.length - 1 }} Chapters</h2>
         <ol class="chapters">
           {% for chapter in chapters %}
             {# Skip the book index page itself #}
             {% if chapter.url != page.url %}
               <li>
                 <a href="{{ chapter.url }}">
-                  Chapter {{ chapter.data.title }}
+                  {{ chapter.data.title }}
                 </a>
               </li>
             {% endif %}

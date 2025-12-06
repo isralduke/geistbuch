@@ -2,14 +2,14 @@
 layout: _base.njk
 ---
 
-<article class="chapter">
+
   <header class="chapter-header">
     <h1>{{ parent }} {{ title }}</h1>
   </header>
 
-  <div class="chapter-content">
+  <main class="chapter-content">
     {{ content | safe }}
-  </div>
+  </main>
 
   {% include "chapter-navigation.njk" %}
-</article>
+
