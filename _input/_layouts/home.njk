@@ -18,9 +18,10 @@ layout: _base.njk
       <h3>Old Testament</h3>
       <ul>
         {% for book in collections.all %}
-          {% if book.url and book.url.includes('/books/') and book.url.endsWith('/') and book.data.title %}
-            {% set bookOrder = book.data.order or 999 %}
-            {% if bookOrder <= 39 %}
+          {% set isBookIndex = book.inputPath.indexOf('/books/') >= 0 and book.inputPath.indexOf('index.md') >= 0 %}
+          {% if isBookIndex %}
+            {% set bookOrder = book.data.order %}
+            {% if bookOrder and bookOrder <= 39 %}
               <li>
                 <a href="{{ book.url }}">{{ book.data.title }}</a>
               </li>
@@ -34,9 +35,10 @@ layout: _base.njk
       <h3>New Testament</h3>
       <ul>
         {% for book in collections.all %}
-          {% if book.url and book.url.includes('/books/') and book.url.endsWith('/') and book.data.title %}
-            {% set bookOrder = book.data.order or 999 %}
-            {% if bookOrder >= 40 %}
+          {% set isBookIndex = book.inputPath.indexOf('/books/') >= 0 and book.inputPath.indexOf('index.md') >= 0 %}
+          {% if isBookIndex %}
+            {% set bookOrder = book.data.order %}
+            {% if bookOrder and bookOrder >= 40 %}
               <li>
                 <a href="{{ book.url }}">{{ book.data.title }}</a>
               </li>
