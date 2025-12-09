@@ -1,44 +1,52 @@
 :root {
 	/* https://colorhunt.co/palette/22283130475ec1a57bececec */
-    --body-text-color    : #30475E;
+	--body-text-color    : #30475E;
 	--body-bg-color      : #ECECEC;
 	--body-link-color    : var(--body-text-color);
 }
 
 @media (prefers-color-scheme: dark) {
-	/* https://colorhunt.co/palette/222831393e4600adb5eeeeee */
-    :root {
-        --body-text-color: #EEEEEE;
-		--body-bg-color  : #393E46;
-		--body-link-color: #24bbc3;
-    }
+/* https://colorhunt.co/palette/222831393e4600adb5eeeeee */
+:root {
+	--body-text-color: #EEEEEE;
+	--body-bg-color  : #393E46;
+	--body-link-color: #24bbc3;
+}
 }
 
 * {
-    font-family          : system-ui, sans-serif;
-    font-feature-settings: "ss06";
-    font-weight          : 400;
+	font-family          : system-ui, sans-serif;
+	font-feature-settings: "ss06";
+	font-weight          : 400;
 	letter-spacing       : 0.046875rem;
 }
 
 body {
-  font-family     : system-ui;
-  font-size       : 1.25rem;
-  line-height     : 1.5;
-  color           : var(--body-text-color);
-  background-color: var(--body-bg-color);
+	font-family     : system-ui;
+	font-size       : 1.25rem;
+	line-height     : 1.5;
+	color           : var(--body-text-color);
+	background-color: var(--body-bg-color);
+}
+
+h1, h2, h3, h4 {
+	line-height: 1.1;
+}
+
+h2 {
+	margin: 2rem 0 1rem;
 }
 
 img,
 svg,
 video {
-  max-width: 100%;
-  display: block;
+	max-width: 100%;
+	display: block;
 }
 
 main {
-  max-width: min(55ch, 100% - 4rem);
-  margin-inline: auto;
+	max-width: min(55ch, 100% - 4rem);
+	margin-inline: auto;
 }
 
 a {
