@@ -7,7 +7,12 @@
 	<link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-	{% include "breadcrumbs.njk" %}
-	{{ content | safe }}
+	<header>
+		{% include "breadcrumbs.njk" %}
+	</header>
+	<main>
+		<h1>{% if parent and title %}{{ parent }} {{ title }}{% else %}{{ title }}{% endif %}</h1>
+		{{ content | safe }}
+	</main>
 </body>
 </html>

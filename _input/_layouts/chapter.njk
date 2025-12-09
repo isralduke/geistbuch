@@ -2,14 +2,23 @@
 layout: _base.njk
 ---
 
+{# Extract h2 headings for section navigation #}
+{% set headings = content | extractH2s %}
 
-  <header class="chapter-header">
-    <h1>{{ parent }} {{ title }}</h1>
-  </header>
+{% if headings.length > 1 %}
+  <nav class="section-navigation" aria-label="Sections in this chapter">
+    <details>
+      <summary>{{ headings.length }} sections in this chapter</summary>
+      <ol>
+        {% for heading in headings %}
+          <li><a href="#{{ heading | slugify }}">{{ heading }}</a></li>
+        {% endfor %}
+      </ol>
+    </details>
+  </nav>
+{% endif %}
 
-  <main class="chapter-content">
-    {{ content | safe }}
-  </main>
+{{ content | addH2Ids | safe }}
 
-  {% include "chapter-navigation.njk" %}
+{% include "chapter-navigation.njk" %}
 

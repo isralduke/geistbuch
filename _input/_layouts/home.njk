@@ -2,52 +2,47 @@
 layout: _base.njk
 ---
 
-<article class="home">
-  <header class="home-header">
-    <h1>{{ title }}</h1>
-  </header>
+{% set bookIndexes = [] %}
+{% for book in collections.all %}
+  {% set isBookIndex = book.inputPath.indexOf('/books/') >= 0 and book.inputPath.indexOf('index.md') >= 0 %}
+  {% if isBookIndex %}
+    {% set bookIndexes = (bookIndexes.push(book), bookIndexes) %}
+  {% endif %}
+{% endfor %}
 
-  <div class="home-content">
-    {{ content | safe }}
-  </div>
+{% set sortedBooks = bookIndexes | sort(false, false, 'data.order') %}
 
-  <nav class="books-list">
-    <h2>Books of the Bible</h2>
-    
-    {% set bookIndexes = [] %}
-    {% for book in collections.all %}
-      {% set isBookIndex = book.inputPath.indexOf('/books/') >= 0 and book.inputPath.indexOf('index.md') >= 0 %}
-      {% if isBookIndex %}
-        {% set bookIndexes = (bookIndexes.push(book), bookIndexes) %}
-      {% endif %}
-    {% endfor %}
-    
-    {% set sortedBooks = bookIndexes | sort(false, false, 'data.order') %}
-    
-    <section class="testament old-testament">
-      <h3>Old Testament</h3>
-      <ul>
-        {% for book in sortedBooks %}
-          {% if book.data.order and book.data.order <= 39 %}
-            <li>
-              <a href="{{ book.url }}">{{ book.data.title }}</a>
-            </li>
-          {% endif %}
-        {% endfor %}
-      </ul>
-    </section>
 
-    <section class="testament new-testament">
-      <h3>New Testament</h3>
-      <ul>
-        {% for book in sortedBooks %}
-          {% if book.data.order and book.data.order >= 40 %}
-            <li>
-              <a href="{{ book.url }}">{{ book.data.title }}</a>
-            </li>
-          {% endif %}
-        {% endfor %}
-      </ul>
-    </section>
+<h2>Books of the Bible</h2>
+    
+<section class="testament old-testament">
+  <h3>Old Testament</h3>
+  <nav>
+    <ul>
+      {% for book in sortedBooks %}
+        {% if book.data.order and book.data.order <= 39 %}
+          <li>
+            <a href="{{ book.url }}">{{ book.data.title }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+    </ul> 
   </nav>
-</article>
+</section>
+
+<section class="testament new-testament">
+  <h3>New Testament</h3>
+  <nav>
+    <ul>
+      {% for book in sortedBooks %}
+        {% if book.data.order and book.data.order >= 40 %}
+          <li>
+            <a href="{{ book.url }}">{{ book.data.title }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+    </ul> 
+  </nav>
+</section>
+
+

@@ -35,7 +35,7 @@ layout: _base.njk
         <ol class="chapters">
           {% for chapter in chapters %}
             {# Skip the book index page itself #}
-            {% if chapter.url != page.url %}
+            {% if chapter.data.layout != 'book.njk' %}
               <li>
                 <a href="{{ chapter.url }}">
                   {{ chapter.data.title }}
