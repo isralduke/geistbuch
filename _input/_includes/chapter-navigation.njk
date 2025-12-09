@@ -1,7 +1,8 @@
-{# Get all chapters in the current book using the parent tag #}
-{% if parent %}
-  {% set parentTag = parent | string | lower %}
-  {% set bookChapters = collections[parentTag] | sortByChapter %}
+{# Get all chapters in the current book using the page's tag #}
+{% if tags %}
+  {# Get the first tag (which is the book-specific tag) #}
+  {% set bookTag = tags[0] if tags.length else "" %}
+  {% set bookChapters = collections[bookTag] | sortByChapter %}
 
   {# Only show navigation if there's more than one chapter #}
   {% if bookChapters and bookChapters.length > 1 %}

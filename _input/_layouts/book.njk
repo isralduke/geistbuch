@@ -2,49 +2,26 @@
 layout: _base.njk
 ---
 
-<article class="book">
-  <header class="book-header">
-    <h1>{{ title }}</h1>
-    {% if bookInfo %}
-      <div class="book-meta">
-        {% if bookInfo.author %}
-          <p class="book-author">Author: {{ bookInfo.author }}</p>
-        {% endif %}
-        {% if bookInfo.summary %}
-          <p class="book-summary">{{ bookInfo.summary }}</p>
-        {% endif %}
-        {% if bookInfo.chapters %}
-          <p class="book-chapters">{{ bookInfo.chapters }} chapters</p>
-        {% endif %}
-      </div>
-    {% endif %}
-  </header>
-
-  <div class="book-content">
-    {{ content | safe }}
-  </div>
-
-  {# Get all chapters for this book using the tag from the directory data #}
-  {% if tags %}
-    {% set bookTag = tags | first | lower %}
-    {% set chapters = collections[bookTag] | sortByChapter %}
-    
-    {% if chapters and chapters.length > 0 %}
-      <nav class="chapter-list" aria-label="Chapters">
-        <h2>{{ chapters.length - 1 }} Chapters</h2>
-        <ol class="chapters">
-          {% for chapter in chapters %}
-            {# Skip the book index page itself #}
-            {% if chapter.data.layout != 'book.njk' %}
-              <li>
-                <a href="{{ chapter.url }}">
-                  {{ chapter.data.title }}
-                </a>
-              </li>
-            {% endif %}
-          {% endfor %}
-        </ol>
-      </nav>
-    {% endif %}
+{# Get all chapters for this book using the tag from the directory data #}
+{% if tags %}
+  {% set bookTag = tags | first | lower %}
+  {% set chapters = collections[bookTag] | sortByChapter %}
+  
+  {% if chapters and chapters.length > 0 %}
+    <nav class="chapter-list" aria-label="Chapters">
+      <h2>{{ chapters.length - 1 }} Chapters</h2>
+      <ol class="chapters">
+        {% for chapter in chapters %}
+          {# Skip the book index page itself #}
+          {% if chapter.data.layout != 'book.njk' %}
+            <li>
+              <a href="{{ chapter.url }}">
+                {{ chapter.data.title }}
+              </a>
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ol>
+    </nav>
   {% endif %}
-</article>
+{% endif %}
