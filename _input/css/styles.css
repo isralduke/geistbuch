@@ -7,11 +7,11 @@
 
 @media (prefers-color-scheme: dark) {
 /* https://colorhunt.co/palette/222831393e4600adb5eeeeee */
-:root {
-	--body-text-color: #EEEEEE;
-	--body-bg-color  : #393E46;
-	--body-link-color: #24bbc3;
-}
+	:root {
+		--body-text-color: #d1d1d1;
+		--body-bg-color  : #393E46;
+		--body-link-color: #24bbc3;
+	}
 }
 
 * {
@@ -23,7 +23,7 @@
 
 body {
 	font-family     : system-ui;
-	font-size       : 1.25rem;
+	font-size       : 1.125rem;
 	line-height     : 1.5;
 	color           : var(--body-text-color);
 	background-color: var(--body-bg-color);
@@ -34,11 +34,14 @@ h1, h2, h3, h4 {
 }
 
 h2 {
-	margin: 2rem 0 1rem;
+	margin: 2rem 0 .5rem;
 }
 
 h2, h3 {
 	font-weight: 700;
+}
+p {
+	margin: 0 0 1rem;
 }
 
 img,

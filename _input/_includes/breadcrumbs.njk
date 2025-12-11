@@ -1,27 +1,31 @@
-<nav class="breadcrumbs" aria-label="Breadcrumb">
-  <ul>
-    {# Only show breadcrumbs if we're not on the home page #}
-    {% if page.url != '/' %}
-      <li><a href="/">Home</a></li>
-      
-      {% if parent %}
-        {# Extract book directory from the current page URL #}
-        {# URL format: /books/08-ruth/01/ -> extract /books/08-ruth/ #}
-        {% set urlParts = page.url | split('/') %}
-        {% set bookDir = urlParts[2] %}
-        {% if bookDir %}
-          <li><a href="/books/{{ bookDir }}/">{{ parent }}</a></li>
-        {% endif %}
-      {% endif %}
-      
-      {# Current page - not a link #}
-      <li aria-current="page">
-        {% if parent and title %}
-          Chapter {{ title }}
-        {% else %}
-          {{ title }}
-        {% endif %}
-      </li>
-    {% endif %}
-  </ul>
+<nav class="breadcrumbs" aria-label="Breadcrumbs">
+	<ul>
+		{# Only show breadcrumbs if we're not on the home page #}
+		{% if page.url != '/' %}
+		<li>
+			<a href="/">Home</a>
+		</li>
+
+		{% if parent %}
+			{# Extract book directory from the current page URL #}
+			{# URL format: /books/08-ruth/01/ -> extract /books/08-ruth/ #}
+			{% set urlParts = page.url | split('/') %}
+			{% set bookDir = urlParts[2] %}
+			{% if bookDir %}
+				<li>
+					<a href="/books/{{ bookDir }}/">{{ parent }}</a>
+				</li>
+			{% endif %}
+		{% endif %}
+
+		{# Current page - not a link #}
+		<li aria-current="page">
+		{% if parent and title %}
+				Chapter {{ title }}
+			{% else %}
+			{{ title }}
+		{% endif %}
+		</li>
+		{% endif %}
+	</ul>
 </nav>
