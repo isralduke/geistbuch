@@ -1,0 +1,14 @@
+# Legend
+
+## Basic Setup
+
+The books of the Bible are presented here in the order they exist in the regular printed version. These books are stored in numbered folders, with each chapter’s file as a numbered markdown file.
+
+## Topics
+
+Topic files contain lists of verses or verse ranges which are associated by common topics throughout. The Topic file are kept in /_input/topics as YAML-formatted Markdown. Those YAML files inventory the verses by book folder number, then chapter file, then verse number. Refer to the following example.
+
+This string: "55-timothy-2/2/2:25"
+Refers to "2 Timothy 2:25" in human readable form
+Which might "/books/55-timothy-2/2/#2:25" in URL or slug form
+

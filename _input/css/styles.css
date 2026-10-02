@@ -2,7 +2,7 @@
 	/* https://colorhunt.co/palette/22283130475ec1a57bececec */
 	--body-text-color    : #30475E;
 	--body-bg-color      : #ECECEC;
-	--body-link-color    : var(--body-text-color);
+	--body-link-color    : #026eb3;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -14,19 +14,14 @@
 	}
 }
 
-* {
-	font-family          : system-ui, sans-serif;
-	font-feature-settings: "ss06";
-	font-weight          : 400;
-	letter-spacing       : 0.046875rem;
-}
-
 body {
 	font-family     : system-ui;
 	font-size       : 1.125rem;
-	line-height     : 1.5;
+	line-height     : 1.45;
 	color           : var(--body-text-color);
 	background-color: var(--body-bg-color);
+	font-feature-settings: "ss06";
+	font-weight          : 400;
 }
 
 h1, h2, h3, h4 {
@@ -44,18 +39,38 @@ p {
 	margin: 0 0 1rem;
 }
 
-img,
-svg,
-video {
+img, svg, video {
 	max-width: 100%;
 	display: block;
 }
 
-main {
+header, main {
 	max-width: min(55ch, 100% - 4rem);
 	margin-inline: auto;
 }
 
 a {
 	color: var(--body-link-color)
+}
+
+nav {
+	&.navigation {
+		ul {
+			display: flex;
+			padding: 0; margin: 0;
+			list-style: none;
+		}
+	}
+	&.breadcrumbs {
+		ul {
+			gap: 1rem;
+			li {
+				&:not(:last-of-type) {
+					&:after {
+						content: '/';
+					}
+				}
+			}
+		}
+	}
 }

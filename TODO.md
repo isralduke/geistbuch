@@ -27,3 +27,7 @@
   - Template engine configuration
 - [ ] Create book index pages (`index.md`) for all 66 books
 - [ ] Populate home page (`_input/index.md`) with book listings
+
+## Missing Chapters?
+
+The audit found 36 title-to-verse mismatches, mostly shifted numbering in 1 Kings and 1 Chronicles. Haggai 2 is also titled “01.” I’ll make one final check of chapters without verse anchors to distinguish missing text from inconsistent markup.

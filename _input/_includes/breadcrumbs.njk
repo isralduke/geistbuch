@@ -1,8 +1,8 @@
-<nav class="breadcrumbs" aria-label="Breadcrumbs">
-	<ul>
+<nav class="navigation breadcrumbs" aria-label="Breadcrumbs">
+	<ul role="list">
 		{# Only show breadcrumbs if we're not on the home page #}
 		{% if page.url != '/' %}
-		<li>
+		<li role="listitem">
 			<a href="/">Home</a>
 		</li>
 
@@ -12,14 +12,14 @@
 			{% set urlParts = page.url | split('/') %}
 			{% set bookDir = urlParts[2] %}
 			{% if bookDir %}
-				<li>
+				<li role="listitem">
 					<a href="/books/{{ bookDir }}/">{{ parent }}</a>
 				</li>
 			{% endif %}
 		{% endif %}
 
 		{# Current page - not a link #}
-		<li aria-current="page">
+		<li role="listitem" aria-current="page">
 		{% if parent and title %}
 				Chapter {{ title }}
 			{% else %}

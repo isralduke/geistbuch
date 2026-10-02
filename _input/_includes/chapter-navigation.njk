@@ -9,13 +9,13 @@
 		{# Find current chapter index #}
 		{% set currentIndex = bookChapters | findIndex(page.url) %}
 
-		<nav class="chapter-navigation" aria-label="Chapter Navigation">
-			<ul>
+		<nav class="navigation chapter-navigation" aria-label="Chapter Navigation">
+			<ul role="list">
 				{# Previous chapter link #}
 				{% if currentIndex > 0 %}
-				<li>
+				<li role="listitem">
 					{% set prevChapter = bookChapters[currentIndex - 1] %}
-					<a href="{{ prevChapter.url }}" class="nav-button nav-prev" rel="prev">
+					<a href="{{ prevChapter.url }}" class="" rel="prev">
 						<span class="nav-title">← Chapter {{ prevChapter.data.title }}</span>
 					</a>
 				</li>
@@ -23,9 +23,9 @@
 
 				{# Next chapter link #}
 				{% if currentIndex < bookChapters.length - 1 %}
-				<li>
+				<li role="listitem">
 					{% set nextChapter = bookChapters[currentIndex + 1] %}
-					<a href="{{ nextChapter.url }}" class="nav-button nav-next" rel="next">
+					<a href="{{ nextChapter.url }}" class="" rel="next">
 						<span class="nav-title">Chapter {{ nextChapter.data.title }}  →</span>
 					</a>
 				</li>
