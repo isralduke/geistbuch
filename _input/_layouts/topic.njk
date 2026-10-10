@@ -4,17 +4,22 @@ layout: _base.njk
 
 {{ content | stripGeneratedBlock | safe }}
 
-{% if verses and verses.length %}
+{% set verseGroups = verses | groupVerses %}
+{% if verseGroups.length %}
 <nav class="navigation topic-verses" aria-label="Verses for this topic">
-	<h2>Verses</h2>
-	<ul role="list">
-		{% for ref in verses %}
-			{% set resolved = ref | resolveVerseRef(books, collections) %}
-			<li>
-				<a href="{{ resolved.url }}">{{ resolved.verseLabel }}</a>
-			</li>
-		{% endfor %}
-	</ul>
+	{% for g in verseGroups %}
+		<h2>{{ g.group or "Verses" }}</h2>
+		<ul role="list">
+			{% for item in g.refs %}
+				{% set entry = item | normalizeVerseEntry %}
+				{% set resolved = entry.ref | resolveVerseRef(books, collections) %}
+				<li>
+					<a href="{{ resolved.url }}">{{ resolved.verseLabel }}</a>
+					{% if entry.note %}<span class="verse-note">{{ entry.note }}</span>{% endif %}
+				</li>
+			{% endfor %}
+		</ul>
+	{% endfor %}
 </nav>
 {% endif %}
 

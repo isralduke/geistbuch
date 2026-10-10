@@ -24,12 +24,45 @@ Optional free-text description of the topic.
 
 Each entry in `verses` is `"<Book Title> <chapter>:<verse>"`, or `"<Book Title> <chapter>:<verseStart>-<verseEnd>"` for a range (a plain hyphen or en dash both work). `<Book Title>` must match a book's `title` exactly as it appears in that book's `index.md` (e.g. "2 Timothy", "Song of Songs").
 
+`verses` may also be grouped under headings, as a mapping of group name to a list of references, instead of one flat list (see `_input/topics/church-discipline.md`):
+
+```
+verses:
+  Key Verses:
+    - Hebrews 12:10
+  All Verses:
+    - Deuteronomy 25:4
+    - Matthew 18:17
+```
+
+Grouping is purely organizational - every reference in every group is resolved, validated, and cross-linked exactly the same as a flat list's; the topic page just renders each group under its own heading instead of one combined list.
+
+Any `verses` entry, in a flat list or inside a group, may also be an object with `ref` and a short `note` instead of a bare string, to annotate why that verse belongs to the topic (see `_input/topics/church-discipline.md`):
+
+```
+verses:
+  All Verses:
+    - ref: Deuteronomy 25:4
+      note: witnesses must verify accusations
+    - Matthew 18:17
+```
+
+A plain string and a `{ref, note}` object can be mixed freely in the same list. The note is resolved alongside its reference and shown next to the link on the topic page, and is also carried into the generated "Source files" block (see below) - but it is not copied into the referenced chapter's `topics:` frontmatter, which stays identical either way.
+
 At build time, `lib/verseRefs.js` resolves each reference to the matching chapter page and verse anchor automatically - book folder names and chapter-filename zero-padding (which varies by book, e.g. Genesis uses `01.md` but Psalms uses `001.md`) are never written by hand. For example, "2 Timothy 2:25" resolves to the chapter page for 2 Timothy 2 (`/books/55-timothy-2/02/`) with the verse anchor `#2:25`.
 
 Topic pages are published under `/topics/<topic-filename>/`, and every chapter that a topic touches shows a "Topics in this chapter" block listing that topic and any other chapters sharing it - this cross-linking is computed from the `verses` list, not hand-maintained on the chapter side.
 
 After adding or editing a topic file's `verses` list, run `npm run topics:sync-links` once. It keeps both directions of the topic/chapter link in sync, computed from `verses` and never hand-written on either side:
 
+- In the topic file's own `verses` frontmatter, it enriches every entry in place with a `file` (relative path to the chapter `.md`) and `fragment` (chapter:verse anchor), promoting a bare string to an object if needed. You only ever hand-write `ref` (and optionally `note`) - everything else is overwritten from scratch on each run, so edit `ref`/`note` and re-run the script rather than touching `file`/`fragment` directly:
+  ```
+  - ref: Hebrews 12:10
+    note: God disciplines us so that we may share in His holiness
+    file: ../books/58-hebrews/12.md
+    fragment: '12:10'
+  ```
+  These two fields are a convenience for reading the frontmatter directly (e.g. to see at a glance which chapter file a reference points at without resolving it yourself) - nothing on the live site reads them back; `resolveVerseRef` still re-derives everything from `ref` fresh on every build.
 - In the topic file's body, it rewrites the "Source files" block with working relative links straight to the referenced chapter `.md` files, so clicking through in VS Code (or on GitHub) opens the real source file - no need to know its folder name or zero-padding by hand. That block is stripped back out before the site is published, since raw `.md` files aren't part of the built site.
 - In each referenced chapter file's frontmatter, it writes a `topics:` list naming every topic verse that touches that chapter, one entry per `"<topic-slug> <chapter>:<verse>"` (e.g. `topics:\n  - answer-with-gentleness 2:25`) - using the chapter's own anchor format, so a chapter with several verses tied to the same topic (like 1 Peter 3's `3:8` and `3:15-16`) gets one entry per verse rather than one ambiguous slug. Entries are removed once their topic/verse is no longer referenced. Metadata only - it never touches a chapter's scripture text, and isn't rendered on the site either (the "Topics in this chapter" block there is computed independently, at build time). It exists purely so the association is visible when reading a chapter file's own frontmatter directly.
 

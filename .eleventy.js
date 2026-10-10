@@ -1,5 +1,10 @@
 const getBooks = require("./_input/_data/books.js");
-const { resolveVerseRef } = require("./lib/verseRefs.js");
+const {
+  resolveVerseRef,
+  groupVerses,
+  flattenVerseGroups,
+  normalizeVerseEntry,
+} = require("./lib/verseRefs.js");
 
 module.exports = function(eleventyConfig) {
   // Add slugify filter
@@ -49,6 +54,15 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addFilter("resolveVerseRef", function(ref, books, collections) {
     return resolveVerseRef(ref, books, tag => collections[tag]);
   });
+
+  // Normalizes a topic's `verses:` frontmatter (flat list, or a mapping of
+  // group name -> list of refs) into [{ group, refs }], so topic.njk can
+  // render both forms the same way.
+  eleventyConfig.addFilter("groupVerses", groupVerses);
+
+  // Normalizes one verses: list item - a plain reference string, or an
+  // { ref, note } object - into { ref, note } (note undefined if absent).
+  eleventyConfig.addFilter("normalizeVerseEntry", normalizeVerseEntry);
 
   // Removes the generated "source files" block that scripts/sync-topic-
   // source-links.js writes into a topic file's body. Those links point at
@@ -110,7 +124,7 @@ module.exports = function(eleventyConfig) {
 
     const entries = [];
     for (const topic of topics) {
-      for (const ref of topic.data.verses || []) {
+      for (const { ref } of flattenVerseGroups(topic.data.verses)) {
         let resolved;
         try {
           resolved = resolveVerseRef(ref, books, tag => collectionApi.getFilteredByTag(tag));
