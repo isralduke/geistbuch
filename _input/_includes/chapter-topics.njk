@@ -1,0 +1,22 @@
+{# "Topics in this chapter" summary block.
+   Reads the build-time-computed reverse index (chapter URL -> topics that
+   touch it), see the "chapterTopics" collection in .eleventy.js. Chapter
+   pages never hand-maintain this list themselves. #}
+{% set chapterTopics = collections.chapterTopics[page.url] %}
+{% if chapterTopics and chapterTopics.length %}
+<nav class="navigation chapter-topics" aria-label="Topics in this chapter">
+	<h2>Topics in this chapter</h2>
+	<ul role="list">
+		{% for t in chapterTopics %}
+			<li>
+				<a href="{{ t.topicUrl }}">{{ t.topicTitle }}</a>
+				{% if t.otherChapters.length %}
+					<span class="also-in">also in
+						{% for c in t.otherChapters %}<a href="{{ c.url }}">{{ c.label }}</a>{% if not loop.last %}, {% endif %}{% endfor %}
+					</span>
+				{% endif %}
+			</li>
+		{% endfor %}
+	</ul>
+</nav>
+{% endif %}

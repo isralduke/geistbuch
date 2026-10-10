@@ -2,13 +2,35 @@
 
 ## Basic Setup
 
-The books of the Bible are presented here in the order they exist in the regular printed version. These books are stored in numbered folders, with each chapter’s file as a numbered markdown file.
+The books of the Bible are presented here in the order they exist in the regular printed version. These books are stored in numbered folders, with each chapter's file as a numbered markdown file.
 
 ## Topics
 
-Topic files contain lists of verses or verse ranges which are associated by common topics throughout. The Topic file are kept in /_input/topics as YAML-formatted Markdown. Those YAML files inventory the verses by book folder number, then chapter file, then verse number. Refer to the following example.
+Topic files group verses or verse ranges by common topic. Topic files are kept in /_input/topics as YAML-formatted Markdown (frontmatter + an optional Markdown description). Each file has a `title` and a `verses` list, written in human-readable form so topics stay easy to hand-edit without knowing folder names or filename zero-padding.
 
-This string: "55-timothy-2/2/2:25"
-Refers to "2 Timothy 2:25" in human readable form
-Which might "/books/55-timothy-2/2/#2:25" in URL or slug form
+Example (`_input/topics/answer-with-gentleness.md`):
 
+```
+---
+title: Answer with Gentleness and Respect
+verses:
+  - 2 Timothy 2:25
+  - 1 Peter 3:8
+  - 1 Peter 3:15-16
+---
+
+Optional free-text description of the topic.
+```
+
+Each entry in `verses` is `"<Book Title> <chapter>:<verse>"`, or `"<Book Title> <chapter>:<verseStart>-<verseEnd>"` for a range (a plain hyphen or en dash both work). `<Book Title>` must match a book's `title` exactly as it appears in that book's `index.md` (e.g. "2 Timothy", "Song of Songs").
+
+At build time, `lib/verseRefs.js` resolves each reference to the matching chapter page and verse anchor automatically - book folder names and chapter-filename zero-padding (which varies by book, e.g. Genesis uses `01.md` but Psalms uses `001.md`) are never written by hand. For example, "2 Timothy 2:25" resolves to the chapter page for 2 Timothy 2 (`/books/55-timothy-2/02/`) with the verse anchor `#2:25`.
+
+Topic pages are published under `/topics/<topic-filename>/`, and every chapter that a topic touches shows a "Topics in this chapter" block listing that topic and any other chapters sharing it - this cross-linking is computed from the `verses` list, not hand-maintained on the chapter side.
+
+After adding or editing a topic file's `verses` list, run `npm run topics:sync-links` once. It keeps both directions of the topic/chapter link in sync, computed from `verses` and never hand-written on either side:
+
+- In the topic file's body, it rewrites the "Source files" block with working relative links straight to the referenced chapter `.md` files, so clicking through in VS Code (or on GitHub) opens the real source file - no need to know its folder name or zero-padding by hand. That block is stripped back out before the site is published, since raw `.md` files aren't part of the built site.
+- In each referenced chapter file's frontmatter, it writes a `topics:` list naming every topic verse that touches that chapter, one entry per `"<topic-slug> <chapter>:<verse>"` (e.g. `topics:\n  - answer-with-gentleness 2:25`) - using the chapter's own anchor format, so a chapter with several verses tied to the same topic (like 1 Peter 3's `3:8` and `3:15-16`) gets one entry per verse rather than one ambiguous slug. Entries are removed once their topic/verse is no longer referenced. Metadata only - it never touches a chapter's scripture text, and isn't rendered on the site either (the "Topics in this chapter" block there is computed independently, at build time). It exists purely so the association is visible when reading a chapter file's own frontmatter directly.
+
+Re-running the script at any time is always safe - it produces no diff when nothing has changed.

@@ -1,0 +1,15 @@
+---
+layout: _base.njk
+---
+
+<nav class="topic-list" aria-label="Topics">
+	<ul role="list">
+		{% for topic in collections.topic | sort(false, false, 'data.title') %}
+			{% if topic.data.layout != 'topics.njk' %}
+				<li>
+					<a href="{{ topic.url }}">{{ topic.data.title }}</a>
+				</li>
+			{% endif %}
+		{% endfor %}
+	</ul>
+</nav>

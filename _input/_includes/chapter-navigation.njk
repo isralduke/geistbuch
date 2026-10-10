@@ -2,24 +2,33 @@
 {% if tags %}
 	{# Get the first tag (which is the book-specific tag) #}
 	{% set bookTag = tags[0] if tags.length else "" %}
-	{% set bookChapters = collections[bookTag] | sortByChapter %}
+	{# Exclude the book's own index page before sorting - its title (e.g.
+	   "Genesis", "1 Samuel") is not a chapter number and would otherwise
+	   corrupt the sort or get mislabeled as a chapter. #}
+	{% set bookChapters = collections[bookTag] | onlyChapters | sortByChapter %}
 
-	{# Only show navigation if there's more than one chapter #}
-	{% if bookChapters and bookChapters.length > 1 %}
+	{% if bookChapters and bookChapters.length > 0 %}
 		{# Find current chapter index #}
 		{% set currentIndex = bookChapters | findIndex(page.url) %}
+		{% set bookIndex = collections[bookTag] | findBookIndex %}
 
 		<nav class="navigation chapter-navigation" aria-label="Chapter Navigation">
 			<ul role="list">
-				{# Previous chapter link #}
-				{% if currentIndex > 0 %}
 				<li role="listitem">
-					{% set prevChapter = bookChapters[currentIndex - 1] %}
-					<a href="{{ prevChapter.url }}" class="" rel="prev">
-						<span class="nav-title">← Chapter {{ prevChapter.data.title }}</span>
-					</a>
+					{% if currentIndex > 0 %}
+						{# Previous chapter link #}
+						{% set prevChapter = bookChapters[currentIndex - 1] %}
+						<a href="{{ prevChapter.url }}" class="" rel="prev">
+							<span class="nav-title">← Chapter {{ prevChapter.data.title }}</span>
+						</a>
+					{% elif bookIndex %}
+						{# First chapter: previous link goes to the book index,
+						   never mislabeled as a chapter. #}
+						<a href="{{ bookIndex.url }}" class="" rel="prev">
+							<span class="nav-title">← {{ bookIndex.data.title }}</span>
+						</a>
+					{% endif %}
 				</li>
-				{% endif %}
 
 				{# Next chapter link #}
 				{% if currentIndex < bookChapters.length - 1 %}

@@ -57,13 +57,14 @@ nav {
 	&.navigation {
 		ul {
 			display: flex;
+			flex-wrap: wrap;
+			gap: 1rem;
 			padding: 0; margin: 0;
 			list-style: none;
 		}
 	}
 	&.breadcrumbs {
 		ul {
-			gap: 1rem;
 			li {
 				&:not(:last-of-type) {
 					&:after {
@@ -71,6 +72,17 @@ nav {
 					}
 				}
 			}
+		}
+	}
+	&.chapter-topics {
+		ul {
+			flex-direction: column;
+			gap: .5rem;
+		}
+		.also-in {
+			font-size: .875rem;
+			opacity: .75;
+			margin-left: .5rem;
 		}
 	}
 }

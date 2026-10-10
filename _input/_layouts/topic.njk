@@ -1,0 +1,23 @@
+---
+layout: _base.njk
+---
+
+{{ content | stripGeneratedBlock | safe }}
+
+{% if verses and verses.length %}
+<nav class="navigation topic-verses" aria-label="Verses for this topic">
+	<h2>Verses</h2>
+	<ul role="list">
+		{% for ref in verses %}
+			{% set resolved = ref | resolveVerseRef(books, collections) %}
+			<li>
+				<a href="{{ resolved.url }}">{{ resolved.verseLabel }}</a>
+			</li>
+		{% endfor %}
+	</ul>
+</nav>
+{% endif %}
+
+<nav class="navigation breadcrumbs-back" aria-label="Back to topics">
+	<a href="/topics/">← All topics</a>
+</nav>

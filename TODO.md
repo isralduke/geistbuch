@@ -23,12 +23,12 @@ Verse-numbering choices are accepted and are not tracked as concerns here.
 
 ## Chapter Navigation
 
-- [ ] Exclude book index pages from the chapter collection in [chapter-navigation.njk](_input/_includes/chapter-navigation.njk). Genesis 1 currently renders a previous link labeled "Chapter Genesis" pointing to its book index.
-- [ ] Check numeric book titles such as "2 Samuel": [sortByChapter](.eleventy.js) parses their leading number, allowing an index page to interrupt chapter order.
-- [ ] Verify previous/next links across all books against numeric chapter filename order. The analysis found 73 chapter pages that differed from this expected sequence.
-- [ ] Decide whether the first chapter should have no previous link or an explicitly labeled book-index link; never label a book index as a chapter.
-- [ ] Add regression checks for first/last chapters and single-chapter books. Preserve the currently passing book-index counts and ordering in [book.njk](_input/_layouts/book.njk).
-- [ ] Check chapter navigation spacing and wrapping on narrow screens in [styles.css](_input/css/styles.css); its flex list currently has no gap or wrapping rule.
+- [x] Exclude book index pages from the chapter collection in [chapter-navigation.njk](_input/_includes/chapter-navigation.njk) via the new `onlyChapters` filter, applied before sorting. Genesis 1's previous link no longer points at its book index mislabeled as a chapter.
+- [x] Numeric book titles such as "1 Samuel" no longer interrupt chapter order: `onlyChapters` removes the index page (whose title is not a chapter number) before [sortByChapter](.eleventy.js) ever runs on it.
+- [x] Verified previous/next links across all 66 books against numeric chapter filename order with a one-off script (chapter titles, index excluded, form a clean `1..N` sequence per book with zero mismatches, down from the previously recorded 73).
+- [x] First chapter's previous link now explicitly targets the book index, labeled with the book's own title (e.g. "← Genesis", "← 1 Samuel") rather than "Chapter <title>" - never labeled as a chapter.
+- [ ] Add *automated* regression checks (no test framework exists yet - see "Automated Validation And Documentation" below) for first/last chapters and single-chapter books. Manually verified for this pass: Genesis 1 (first), Genesis 50 (last), Philemon 1 (single-chapter, index-only previous, no next), 1 Samuel 1 (numeric title). [book.njk](_input/_layouts/book.njk) was not touched and its counts/ordering are unaffected.
+- [x] Added `gap` and `flex-wrap: wrap` to the shared `nav.navigation ul` rule in [styles.css](_input/css/styles.css), covering `.chapter-navigation` on narrow screens.
 
 ## Section Links
 
@@ -39,9 +39,9 @@ Verse-numbering choices are accepted and are not tracked as concerns here.
 
 ## Topics And Metadata
 
-- [ ] Choose a topic-reference format and reconcile [legend.txt](_input/legend.txt) with [answer-with-gentleness.yaml](_input/topics/answer-with-gentleness.yaml): the legend describes folder-based references, while the YAML uses human-readable book names and verse ranges.
-- [ ] Define topic range parsing and zero-padded chapter URL handling. The legend's `/2/` example does not match the current `/02/` chapter URLs.
-- [ ] Implement topic pages and verse links if topics are intended to be user-facing; the current build does not render them.
+- [x] Chose the human-readable reference format (`"<Book Title> <chapter>:<verse>"`, e.g. "2 Timothy 2:25") and rewrote [legend.txt](_input/legend.txt) to match it, dropping the old folder-path example. Topics now live as YAML-frontmatter Markdown files (e.g. [answer-with-gentleness.md](_input/topics/answer-with-gentleness.md)), not raw `.yaml` (11ty never rendered `.yaml` - see [books.js](_input/_data/books.js) and [verseRefs.js](lib/verseRefs.js)).
+- [x] Verse range parsing (`start-end`, hyphen or en dash) and chapter-URL resolution are handled in [lib/verseRefs.js](lib/verseRefs.js), which resolves against the real chapter page object rather than constructing a URL string - so it's correct regardless of a book's chapter-filename zero-padding (Genesis `01.md` vs. Psalms `001.md`).
+- [x] Implemented topic pages (`/topics/<slug>/`, `/topics/`) and bidirectional chapter/topic links: each topic page links out to every chapter/verse it touches ([topic.njk](_input/_layouts/topic.njk)), and every chapter shows a computed "Topics in this chapter" block linking back to its topics and to the other chapters sharing them ([chapter-topics.njk](_input/_includes/chapter-topics.njk), the `chapterTopics` collection in [.eleventy.js](.eleventy.js)). Back-links are computed at build time, never hand-maintained on the chapter side.
 - [ ] Decide whether Genesis-only `bookInfo` metadata in [01-genesis.json](_input/books/01-genesis/01-genesis.json) is an experimental addition or a schema to apply to every book.
 
 ## Automated Validation And Documentation
