@@ -64,17 +64,6 @@ module.exports = function(eleventyConfig) {
   // { ref, note } object - into { ref, note } (note undefined if absent).
   eleventyConfig.addFilter("normalizeVerseEntry", normalizeVerseEntry);
 
-  // Removes the generated "source files" block that scripts/sync-topic-
-  // source-links.js writes into a topic file's body. Those links point at
-  // raw .md files in the repo (for browsing in VS Code/GitHub) which don't
-  // exist in the published site, so they're stripped before rendering.
-  eleventyConfig.addFilter("stripGeneratedBlock", function(html) {
-    if (!html) return html;
-    return html
-      .replace(/<!--\s*topics:source-links:start[\s\S]*?topics:source-links:end\s*-->/, "")
-      .trim();
-  });
-
   // Add split filter - splits a string into an array
   eleventyConfig.addFilter("split", function(value, separator) {
     if (!value) return [];

@@ -1,42 +1,35 @@
 #!/usr/bin/env node
 // Keeps the links between topic files and chapter files in sync in both
 // directions, computed from topic files' hand-authored `verses:` lists -
-// never hand-maintained on either side.
+// never hand-maintained on either side. Only ever touches frontmatter -
+// a topic file's content area is reserved for human-written longform
+// prose and is never read or rewritten by this script.
 //
-// A topic's `verses:` may be a flat list, or a mapping of group name ->
-// list (e.g. church-discipline.md's "Key Verses"/"All Verses"), and each
-// list item may be a plain reference string or an { ref, note } object
-// carrying a short annotation - see lib/verseRefs.js's groupVerses/
-// flattenVerseGroups/normalizeVerseEntry, which every form goes through
-// everywhere a topic's verses are read (here, and in .eleventy.js's
+// A topic's `verses:` may be a flat list, a mapping of group name -> list,
+// or an array of single-key group-wrapper objects (one group per array
+// item, e.g. `- key_verses: [...]` / `- all_verses: [...]`, for an
+// explicit/unambiguous group order) - see lib/verseRefs.js's
+// classifyVerses/groupVerses/flattenVerseGroups. Each list item may be a
+// plain reference string or an { ref, note } object carrying a short
+// annotation - see normalizeVerseEntry. Every form goes through the same
+// code everywhere a topic's verses are read (here, and in .eleventy.js's
 // chapterTopics collection and topic.njk). Grouping and notes are purely
 // organizational; every ref in every form is resolved, validated, and
 // cross-linked identically.
 //
-// 1. Topic file -> chapter files, in the body: regenerates the "Source
-//    files" block in each _input/topics/*.md file's body, linking straight
-//    to the chapter markdown files in _input/books/ that each verse
-//    resolves to - so a human editing a topic file in VS Code (or browsing
-//    it on GitHub) can click through to the source chapter, not just a
-//    human-readable label. Only the block between its markers is ever
-//    touched; other hand-written prose in the body is left alone. This
-//    block is stripped back out before the topic page is published (see
-//    "stripGeneratedBlock" in .eleventy.js) - raw .md files don't exist in
-//    the built site.
+// 1. Topic file frontmatter: enriches every `verses:` entry in place with
+//    a generated `file` (chapter path, relative to _input/books/, no
+//    extension) and `fragment` (chapter:verse anchor), e.g.
+//    `- ref: Hebrews 12:10 \n  note: '' \n  file: 58-hebrews/12 \n
+//    fragment: '12:10'`. A bare string entry is promoted to a full object.
+//    Both fields are always recomputed fresh from `ref` - they're a
+//    convenience for reading the frontmatter directly, never read back as
+//    authoritative by anything (the live site still resolves `ref` itself
+//    on every build).
 //
-// 1b. Topic file -> chapter files, in its own frontmatter: enriches every
-//    `verses:` entry in place with a generated `file` (relative path to the
-//    chapter .md) and `fragment` (chapter:verse anchor), e.g.
-//    `- ref: Hebrews 12:10 \n  note: ... \n  file: ../books/58-hebrews/12.md
-//    \n  fragment: '12:10'`. A bare string entry (no note) is promoted to an
-//    object with just `ref`/`file`/`fragment`. Both fields are always
-//    recomputed fresh from `ref` - they're a convenience for reading the
-//    frontmatter directly, never read back as authoritative by anything
-//    (the live site still resolves `ref` itself on every build).
-//
-// 2. Chapter file -> topic files: writes a generated `topics:` list into
-//    the frontmatter of every chapter file referenced by at least one
-//    topic (e.g. `topics:\n  - answer-with-gentleness`), and removes it
+// 2. Chapter file frontmatter: writes a generated `topics:` list into the
+//    frontmatter of every chapter file referenced by at least one topic
+//    (e.g. `topics:\n  - answer-with-gentleness 2:25`), and removes it
 //    from chapter files that are no longer referenced. Metadata only -
 //    never touches the scripture body/content, and is not rendered on the
 //    site (the "Topics in this chapter" block on the live site is computed
@@ -56,6 +49,7 @@ const yaml = require("js-yaml");
 const getBooks = require("../_input/_data/books.js");
 const {
   resolveVerseRefToFile,
+  classifyVerses,
   flattenVerseGroups,
   normalizeVerseEntry,
 } = require("../lib/verseRefs.js");
@@ -63,50 +57,16 @@ const {
 const TOPICS_DIR = path.join(__dirname, "..", "_input", "topics");
 const BOOKS_DIR = path.join(__dirname, "..", "_input", "books");
 
-function escapeRegExp(s) {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-// Splits "---\n<frontmatter>\n---\n<body>" so everything outside the part
-// being changed is kept byte-for-byte untouched. Tolerates \r\n line
-// endings - a handful of chapter files use them while most use \n.
+// Splits "---\n<frontmatter>\n---\n<body>" so the body - a topic file's
+// human-written content area - is always carried through completely
+// untouched; only ever the frontmatter half is rewritten. Tolerates \r\n
+// line endings - a handful of chapter files use them while most use \n.
 function splitFrontmatter(raw) {
   const m = raw.match(/^(---\r?\n[\s\S]*?\r?\n---\r?\n)([\s\S]*)$/);
   return m ? { header: m[1], body: m[2] } : null;
 }
 
-// --- 1. Topic file body: "Source files" block -----------------------------
-
-const SOURCE_LINKS_START =
-  "<!-- topics:source-links:start - generated by `npm run topics:sync-links`, do not edit by hand -->";
-const SOURCE_LINKS_END = "<!-- topics:source-links:end -->";
-const SOURCE_LINKS_PATTERN = new RegExp(
-  `${escapeRegExp(SOURCE_LINKS_START)}[\\s\\S]*?${escapeRegExp(SOURCE_LINKS_END)}`
-);
-
-// entries: [{ group, note, resolved }] - mirrors the topic's own group
-// structure (if any) so a grouped topic's generated block reads the same
-// way as its frontmatter; an ungrouped topic (group is null for every
-// entry) produces the same flat list as before. A note, if present, is
-// appended after the link so it travels with the data instead of only
-// living in frontmatter.
-function buildSourceLinksBlock(entries) {
-  const lines = [];
-  let lastGroup;
-  for (const { group, note, resolved } of entries) {
-    if (group !== lastGroup) {
-      if (lines.length) lines.push("");
-      if (group) lines.push(`**${group}**`, "");
-      lastGroup = group;
-    }
-    const relPath = path.relative(TOPICS_DIR, resolved.filePath).split(path.sep).join("/");
-    const link = `[${resolved.verseLabel}](${relPath}#${resolved.fragment})`;
-    lines.push(note ? `- ${link} - ${note}` : `- ${link}`);
-  }
-  return [SOURCE_LINKS_START, "**Source files:**", "", ...lines, SOURCE_LINKS_END].join("\n");
-}
-
-// --- 1b. Topic file frontmatter: enrich verses: entries -------------------
+// --- 1. Topic file frontmatter: enrich verses: entries ---------------------
 
 // Matches the `verses:` key and everything indented under it, however
 // deeply nested (groups, and each item's ref/note/file/fragment lines) -
@@ -118,31 +78,53 @@ const VERSES_KEY_PATTERN = /\nverses:\n(?:[ \t].*\n?)*/;
 function enrichVerseItem(item, books) {
   const { ref, note } = normalizeVerseEntry(item);
   const resolved = resolveVerseRefToFile(ref, books, BOOKS_DIR);
-  const relPath = path.relative(TOPICS_DIR, resolved.filePath).split(path.sep).join("/");
+  // Relative to _input/books/ (e.g. "55-timothy-2/02") - a plain
+  // book-folder path, independent of where topic files happen to live.
+  // No extension - whatever actually needs a loadable path (nothing does
+  // today; everything re-resolves `ref` itself) adds ".md" itself rather
+  // than this field baking an extension in.
+  const bookRelPath = path
+    .relative(BOOKS_DIR, resolved.filePath)
+    .split(path.sep)
+    .join("/")
+    .replace(/\.md$/, "");
 
-  const entry = { ref };
-  if (note !== undefined) entry.note = note;
-  entry.file = relPath;
-  entry.fragment = resolved.fragment;
-  return entry;
+  // Every entry always gets all four fields, in the same order, even when
+  // there's no note - so every topic file's verses: entries share one
+  // consistent shape (ref, note, file, fragment) whether or not that
+  // particular topic uses notes. An empty note is falsy in topic.njk, so
+  // it's never displayed.
+  return { ref, note: note ?? "", file: bookRelPath, fragment: resolved.fragment };
 }
 
-// Rebuilds a topic's `verses:` value (flat list, or group name -> list)
-// with every entry enriched, preserving its original shape/group order.
+// Rebuilds a topic's `verses:` value with every entry enriched, preserving
+// whichever of the three supported `verses:` idioms it was already using
+// (see classifyVerses in lib/verseRefs.js) - a mapping stays a mapping, a
+// group-wrapper array (e.g. `- key_verses: [...]`) stays a group-wrapper
+// array with the same group order, and a flat list stays a flat list.
 function enrichVerses(verses, books) {
-  if (Array.isArray(verses)) return verses.map((item) => enrichVerseItem(item, books));
-  const out = {};
-  for (const [group, items] of Object.entries(verses)) {
-    out[group] = (items || []).map((item) => enrichVerseItem(item, books));
+  const { kind, groups } = classifyVerses(verses);
+  const enriched = groups.map(({ group, refs }) => ({
+    group,
+    refs: refs.map((item) => enrichVerseItem(item, books)),
+  }));
+
+  if (kind === "mapping") {
+    const out = {};
+    for (const { group, refs } of enriched) out[group] = refs;
+    return out;
   }
-  return out;
+  if (kind === "groupArray") {
+    return enriched.map(({ group, refs }) => ({ [group]: refs }));
+  }
+  return enriched.length ? enriched[0].refs : [];
 }
 
 function buildVersesYaml(enrichedVerses) {
   return "\n" + yaml.dump({ verses: enrichedVerses }, { lineWidth: -1 }).replace(/\n$/, "");
 }
 
-function updateTopicFile(filePath, originalVerses, entries, books) {
+function updateTopicFile(filePath, originalVerses, books) {
   const raw = fs.readFileSync(filePath, "utf8");
   const split = splitFrontmatter(raw);
   if (!split) {
@@ -150,29 +132,17 @@ function updateTopicFile(filePath, originalVerses, entries, books) {
     return false;
   }
 
-  // 1b. Enrich the verses: block in frontmatter.
-  let newHeader = split.header;
   const innerMatch = split.header.match(/^---\r?\n([\s\S]*)\r?\n---\r?\n$/);
-  if (innerMatch && VERSES_KEY_PATTERN.test(innerMatch[1])) {
-    const versesYaml = buildVersesYaml(enrichVerses(originalVerses, books));
-    const newInner = innerMatch[1].replace(VERSES_KEY_PATTERN, versesYaml);
-    newHeader = `---\n${newInner}\n---\n`;
-  }
+  if (!innerMatch || !VERSES_KEY_PATTERN.test(innerMatch[1])) return false;
 
-  // 1. Rewrite the "Source files" block in the body.
-  const block = buildSourceLinksBlock(entries);
-  let newBody;
-  if (SOURCE_LINKS_PATTERN.test(split.body)) {
-    newBody = split.body.replace(SOURCE_LINKS_PATTERN, block);
-  } else {
-    newBody = split.body.replace(/\s*$/, "") + "\n\n" + block;
-  }
-  newBody = newBody.replace(/\s*$/, "") + "\n";
+  const versesYaml = buildVersesYaml(enrichVerses(originalVerses, books));
+  const newInner = innerMatch[1].replace(VERSES_KEY_PATTERN, versesYaml);
+  const newHeader = `---\n${newInner}\n---\n`;
+  if (newHeader === split.header) return false;
 
-  const newRaw = newHeader + newBody;
-  if (newRaw === raw) return false;
-
-  fs.writeFileSync(filePath, newRaw);
+  // Body (the content area) is carried through exactly as read - never
+  // touched by this script.
+  fs.writeFileSync(filePath, newHeader + split.body);
   return true;
 }
 
@@ -270,26 +240,20 @@ function main() {
     const flatRefs = flattenVerseGroups(data.verses);
     if (!flatRefs.length) continue;
 
-    let entries;
     try {
-      entries = flatRefs.map(({ ref, group, note }) => ({
-        group,
-        note,
-        resolved: resolveVerseRefToFile(ref, books, BOOKS_DIR),
-      }));
+      for (const { ref } of flatRefs) {
+        const resolved = resolveVerseRefToFile(ref, books, BOOKS_DIR);
+        if (!chapterTopics.has(resolved.filePath)) chapterTopics.set(resolved.filePath, new Set());
+        chapterTopics.get(resolved.filePath).add(`${slug} ${resolved.chapterVerse}`);
+      }
     } catch (err) {
       console.error(`Topic "${file}": ${err.message}`);
       process.exitCode = 1;
       continue;
     }
 
-    for (const { resolved } of entries) {
-      if (!chapterTopics.has(resolved.filePath)) chapterTopics.set(resolved.filePath, new Set());
-      chapterTopics.get(resolved.filePath).add(`${slug} ${resolved.chapterVerse}`);
-    }
-
     try {
-      if (updateTopicFile(filePath, data.verses, entries, books)) {
+      if (updateTopicFile(filePath, data.verses, books)) {
         console.log(`Updated ${path.relative(process.cwd(), filePath)}`);
         changed++;
       }
