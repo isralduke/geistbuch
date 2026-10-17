@@ -77,7 +77,20 @@ const VERSES_KEY_PATTERN = /\nverses:\n(?:[ \t].*\n?)*/;
 
 function enrichVerseItem(item, books) {
   const { ref, note } = normalizeVerseEntry(item);
-  const resolved = resolveVerseRefToFile(ref, books, BOOKS_DIR);
+
+  // A ref that doesn't parse/resolve yet (e.g. a chapter-only placeholder
+  // like "Proverbs 2", or a typo) is left as just { ref, note } - no
+  // file/fragment - rather than aborting enrichment for every other entry
+  // in the file. It's promoted to the full shape once the ref itself is
+  // fixed and the script is re-run.
+  let resolved;
+  try {
+    resolved = resolveVerseRefToFile(ref, books, BOOKS_DIR);
+  } catch (err) {
+    console.warn(`  Leaving "${ref}" unresolved: ${err.message}`);
+    return { ref, note: note ?? "" };
+  }
+
   // Relative to _input/books/ (e.g. "55-timothy-2/02") - a plain
   // book-folder path, independent of where topic files happen to live.
   // No extension - whatever actually needs a loadable path (nothing does
@@ -240,16 +253,19 @@ function main() {
     const flatRefs = flattenVerseGroups(data.verses);
     if (!flatRefs.length) continue;
 
-    try {
-      for (const { ref } of flatRefs) {
-        const resolved = resolveVerseRefToFile(ref, books, BOOKS_DIR);
-        if (!chapterTopics.has(resolved.filePath)) chapterTopics.set(resolved.filePath, new Set());
-        chapterTopics.get(resolved.filePath).add(`${slug} ${resolved.chapterVerse}`);
+    for (const { ref } of flatRefs) {
+      // A ref that doesn't parse/resolve yet (a chapter-only placeholder, a
+      // typo) just doesn't get a chapter-side back-reference yet - it
+      // doesn't block every other ref in this topic file from syncing.
+      let resolved;
+      try {
+        resolved = resolveVerseRefToFile(ref, books, BOOKS_DIR);
+      } catch (err) {
+        console.warn(`Topic "${file}": ${err.message}`);
+        continue;
       }
-    } catch (err) {
-      console.error(`Topic "${file}": ${err.message}`);
-      process.exitCode = 1;
-      continue;
+      if (!chapterTopics.has(resolved.filePath)) chapterTopics.set(resolved.filePath, new Set());
+      chapterTopics.get(resolved.filePath).add(`${slug} ${resolved.chapterVerse}`);
     }
 
     try {

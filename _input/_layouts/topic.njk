@@ -15,7 +15,11 @@ layout: _base.njk
 					{% set entry = item | normalizeVerseEntry %}
 					{% set resolved = entry.ref | resolveVerseRef(books, collections) %}
 					<li>
-						<a href="{{ resolved.url }}">{{ resolved.verseLabel }}</a>
+						{% if resolved %}
+							<a href="{{ resolved.url }}">{{ resolved.verseLabel }}</a>
+						{% else %}
+							<span class="verse-unresolved">{{ entry.ref }}</span>
+						{% endif %}
 						{% if entry.note %}<span class="verse-note">{{ entry.note }}</span>{% endif %}
 					</li>
 				{% endfor %}

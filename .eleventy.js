@@ -50,9 +50,17 @@ module.exports = function(eleventyConfig) {
   });
 
   // Resolves a human-readable verse reference (e.g. "2 Timothy 2:25") from a
-  // topic file into the matching chapter page and a verse-anchor URL.
+  // topic file into the matching chapter page and a verse-anchor URL. A ref
+  // that doesn't parse/resolve yet (a chapter-only placeholder, a typo)
+  // returns null instead of failing the whole build - topic.njk renders it
+  // as plain, unlinked text.
   eleventyConfig.addFilter("resolveVerseRef", function(ref, books, collections) {
-    return resolveVerseRef(ref, books, tag => collections[tag]);
+    try {
+      return resolveVerseRef(ref, books, tag => collections[tag]);
+    } catch (err) {
+      console.warn(`resolveVerseRef: ${err.message}`);
+      return null;
+    }
   });
 
   // Normalizes a topic's `verses:` frontmatter (flat list, or a mapping of
@@ -118,7 +126,12 @@ module.exports = function(eleventyConfig) {
         try {
           resolved = resolveVerseRef(ref, books, tag => collectionApi.getFilteredByTag(tag));
         } catch (err) {
-          throw new Error(`Topic "${topic.inputPath}": ${err.message}`);
+          // A ref that doesn't parse/resolve yet (a chapter-only
+          // placeholder, a typo) is skipped here rather than failing the
+          // whole build - it just doesn't appear in any chapter's "Topics
+          // in this chapter" block until it's fixed and the ref resolves.
+          console.warn(`Topic "${topic.inputPath}": ${err.message}`);
+          continue;
         }
         entries.push({ topic, resolved });
       }
